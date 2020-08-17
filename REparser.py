@@ -1,25 +1,14 @@
 from sly import Parser
 from RElex import RegexLexer
-
-class State(object):
-    _counter: int = 0
-
-    def __init__(self, isEnd):
-        self.name:str = "q%s" % State._counter
-        self.isEnd: bool = isEnd
-        self.sTransitions = {}
-        self.eTransitions = []
-
-        State._counter += 1
-
-    def addSymbolTransition(self, symbol, to):
-        self.sTransitions[symbol] = to
-
-    def addEpsilonTransition(self, to):
-        self.eTransitions.append(to)
+from Automata import State
 
 class RegexParser(Parser):
     tokens = RegexLexer.tokens
+
+    def __init__(self):
+        self.eAlphabet = set([])
+        self.eStates = {}
+        State._counter = 0
 
     @_("union", "simple_re")
     def re(self, p):
@@ -45,6 +34,8 @@ class RegexParser(Parser):
         f_end.addEpsilonTransition(end)
         s_end.addEpsilonTransition(end)
 
+        self.eStates[start.name] = start
+        self.eStates[end.name] = end
         return (start, end)
 
     @_("concatenation", "basic_re")
@@ -91,6 +82,8 @@ class RegexParser(Parser):
         p_end.addEpsilonTransition(end)
         p_end.addEpsilonTransition(p_start)
 
+        self.eStates[start.name] = start
+        self.eStates[end.name] = end
         return (start, end)
 
     @_("elementary_re F_PLUS")
@@ -103,6 +96,7 @@ class RegexParser(Parser):
         p_end.addEpsilonTransition(end)
         end.addEpsilonTransition(start)
 
+        self.eStates[end.name] = end
         return (start, end)
 
     @_("elementary_re QMARK")
@@ -117,6 +111,8 @@ class RegexParser(Parser):
         start.addEpsilonTransition(p_start)
         p_end.addEpsilonTransition(end)
 
+        self.eStates[start.name] = start
+        self.eStates[end.name] = end
         return (start, end)
 
     # @_("group", "ESCAPE", "DOT", "CHAR", "set")
@@ -129,6 +125,9 @@ class RegexParser(Parser):
             end = State(True)
             start.addSymbolTransition(symbol, end)
 
+            self.eAlphabet.add(symbol)
+            self.eStates[start.name] = start
+            self.eStates[end.name] = end
             return (start, end)
 
         return p.group if "group" in p._namemap else p.set
@@ -146,11 +145,13 @@ class RegexParser(Parser):
         for item in p.set_items:
             start.addSymbolTransition(item, end)
 
+        self.eStates[start.name] = start
+        self.eStates[end.name] = end
         return (start, end)
 
     @_("set_items set_item")
     def set_items(self, p):
-        print(len(p.set_items))
+        print(p._slice)
         p.set_items.append(p.set_item)
         return p.set_items
             
@@ -162,4 +163,7 @@ class RegexParser(Parser):
     @_("ESCAPE", "CHAR")
     def set_item(self, p):
         print(p._slice)
-        return p.CHAR if "CHAR" in p._namemap else p.ESCAPE
+        symbol = p.CHAR if "CHAR" in p._namemap else p.ESCAPE
+
+        self.eAlphabet.add(symbol)
+        return symbol
