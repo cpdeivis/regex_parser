@@ -92,4 +92,9 @@ Entrada reconhecida!
 Teste > 4zya
 q0 ---'4'---> q2
 ERRO: O estado 'q2' não possuí transição com o token 'z'!
+
+Regex > a*+
+Validação da ER
+sly: Syntax error at line 1, token=F_PLUS
+Regex inválida!
 ```
