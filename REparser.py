@@ -4,12 +4,15 @@ from Automata import eNFA
 
 
 class RegexParser(Parser):
+    # Obtem lista de tokens do lexer
     tokens = RegexLexer.tokens
 
     def __init__(self, isVerbose=False):
         self.Automaton = eNFA()
-        self.Verbose = isVerbose
+       
 
+    # Regras gramaticais e ações
+    # Os argumentos dos decoradores são o lado direito das regras da gramatica
     @_("union", "simple_re")
     def re(self, p):
         if self.Verbose:
