@@ -14,11 +14,12 @@ class RegexLexer(Lexer):
         ALT,
         CHAR,
     }
+
     @_(r"\\.")
     def ESCAPE(self, t):
         t.value = t.value[-1]
         return t
-    
+
     LBRACK = r"\["
     RBRACK = r"\]"
     LPAREN = r"\("
