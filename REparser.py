@@ -9,7 +9,7 @@ class RegexParser(Parser):
 
     def __init__(self, isVerbose=False):
         self.Automaton = eNFA()
-       
+        self.Verbose = isVerbose
 
     # Regras gramaticais e ações
     # Os argumentos dos decoradores são o lado direito das regras da gramatica
