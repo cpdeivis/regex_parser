@@ -176,3 +176,15 @@ class RegexParser(Parser):
         symbol = p.CHAR if "CHAR" in p._namemap else p.ESCAPE
 
         return symbol
+
+    def error(self, token):
+        if token:
+            lineno = getattr(token, "lineno", 0)
+            if lineno:
+                print(f"Erro de sintaxe na linha {lineno}, token={token.type}!")
+            else:
+                print(f"Erro de sintaxe, token={token.type}!")
+        else:
+            print("Erro ao parsear a entrada. EOF\n")
+
+        raise KeyError()
